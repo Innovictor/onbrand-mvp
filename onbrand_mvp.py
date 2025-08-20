@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 import time
 
 load_dotenv()
-print(f"DEBUG: API key exists: {os.getenv('ANTHROPIC_API_KEY') is not None}")
-print(f"DEBUG: API key length: {len(os.getenv('ANTHROPIC_API_KEY', ''))}")
 
 
-def get_brand_personality_input():
+
+def get_brand_personality_input(is_first_time=True):
     """Get brand personality settings from user via 3 sliders"""
-    print("Welcome to OnBrand - Let's define your brand personality")
+    if is_first_time:
+        print("Welcome to OnBrand - Let's define your brand personality")
     print()
 
     # Initialize variable before the loop
@@ -77,7 +77,7 @@ def get_brand_personality_input():
 def generate_personality_description(casual_formal, playful_serious, simple_technical):
     """Generate brand personality description using Claude API"""
     print("\n🤖 Analyzing your brand personality... (this may take a few seconds)")
-    time.sleep(2)
+    time.sleep(4)
 
     print("✨ Generating your unique brand voice description...")
     client = anthropic.Anthropic(
@@ -97,27 +97,69 @@ def generate_personality_description(casual_formal, playful_serious, simple_tech
         Enrich the brand personality analysis with insights across the following thoughts:
             - How do these traits complement each other?
             - Where do they create contrast or tension? If there's any potential tension, note that the tension can be productive and the tension actually makes the voice more interesting and human
-            - Are there moments when one trait type might be more dominant than the others?"""
+            - Are there moments when one trait type might be more dominant than the others?
+            IMPORTANT: Provide the response in plain text format only. Do not use markdown formatting, asterisks, or hashtags. Use simple text formatting only.
+            """
 
 
     response = client.messages.create(
-            model="claude-3-5-haiku-20241022",
+            model="claude-sonnet-4-0",
             max_tokens=400,
             messages=[{"role": "user", "content": prompt}]
         )
     return response.content[0].text
 
 
+
+def save_personality_description(description, score):
+    """ Save brand personality description to file"""
+    with open("brand_personality_description.txt", "w") as file:
+        file.write(f"BRAND PERSONALITY DESCRIPTION\n")
+        file.write(f"=" * 50 + "\n\n")
+        file.write(f"Brand Scores:\n")
+        file.write(f"Casual vs Formal: {score[0]}\n")
+        file.write(f"Playful vs Serious: {score[1]}\n") 
+        file.write(f"Simple vs Technical: {score[2]}\n\n")
+        file.write("Description:\n")
+        file.write(description)
+    print("Brand personality saved to 'brand_personality_description.txt'")
+
+
+
 def main():
     """Main program loop"""
-    score = get_brand_personality_input()
-    print(f"\Your Brand Personality:")
-    print(f"Casual vs Formal: {score [0]}")
-    print(f"Playful vs Serious: {score[1]}")
-    print(f"Simple vs Technical: {score[2]}")
+    first_time = True
 
-    description = generate_personality_description(score[0], score[1], score[2])
-    print(f"\n{description}")
+    while True:
+        score = get_brand_personality_input(first_time)
+        first_time = False
+        print(f"\Your Brand Personality:")
+        print(f"Casual vs Formal: {score [0]}")
+        print(f"Playful vs Serious: {score[1]}")
+        print(f"Simple vs Technical: {score[2]}")
+
+        description = generate_personality_description(score[0], score[1], score[2])
+        print(f"\n{description}")
+
+        while True:
+            confirm = input("\nIs this an accurate description of your brand personality? Y for Yes, N for No, E to Exit: ").strip().upper()
+            if confirm == 'Y':
+                print("✅ Saving Brand personality Description...")
+
+                save_personality_description(description,score)
+                time.sleep(2)
+                print("\n🎉 Your brand personality has been saved successfully!")
+                print("Thanks for using OnBrand! ✌🏽")
+                return 
+            elif confirm == 'N':
+                print("🔄 Let's adjust your brand personality parameters...")
+                break
+            elif confirm == 'E':
+                print("Thanks for using OnBrand! ✌🏽")
+                exit()
+            else:
+                print("Enter Y for Yes or N for No or E to Exit")
+
 
 
 if __name__ == "__main__":
