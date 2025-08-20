@@ -71,17 +71,20 @@ Dominant Trait Moments:
 
 ## 🗺️ Roadmap
 
-**v0.2 (Coming Next):**
+**v0.2 (✅ Completed):**
 - User confirmation workflow (accept/adjust brand personality)
-- Brand personality persistence (save/load profiles)
+- Parameter adjustment loop with seamless UX
+- Graceful exit options and enhanced user experience
+- Upgraded AI model for improved accuracy
 
-**v0.3 (Planned):**
+**v0.3 (Coming Next):**
 - Content analysis against brand personality
 - OnBrand scoring (0-100) with improvement suggestions
 - Multiple content type support (social media, blog posts, press releases)
 
 **v1.0 (Vision):**
 - Multi-platform analysis and optimization
+- Brand personality persistence (save/load profiles)
 - Brand voice memory and learning
 - Team collaboration features
 
