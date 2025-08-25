@@ -18,11 +18,16 @@ Instead of generic analysis, OnBrand provides:
 - **Dominance Moments**: When different traits should lead your communication
 - **Brand Voice Archetype**: Clear positioning and communication strategy
 
-## 🚀 Current Features (v0.1)
+## 🚀 Current Features (v0.3)
 
 - Interactive brand personality assessment (3-slider system)
-- AI-powered personality synthesis using Claude 3.5 Haiku
+- AI-powered personality synthesis using Claude Sonnet 4
 - Professional brand voice analysis with actionable insights
+- Content analysis with OnBrand scoring (0-100)
+- Platform-specific optimization (Twitter/LinkedIn)
+- Character limit enforcement and validation
+- Timestamped analysis history and file saving
+- Complete user workflow with exit options
 - Secure API key management with environment variables
 
 ## 📋 Requirements
@@ -77,10 +82,19 @@ Dominant Trait Moments:
 - Graceful exit options and enhanced user experience
 - Upgraded AI model for improved accuracy
 
-**v0.3 (Coming Next):**
+**v0.3 (✅ Completed):**
 - Content analysis against brand personality
 - OnBrand scoring (0-100) with improvement suggestions
-- Multiple content type support (social media, blog posts, press releases)
+- Platform-specific analysis (Twitter 280 chars, LinkedIn 1300 chars)
+- Character limit validation and platform context
+- Timestamped analysis history with file saving
+- User exit options at all decision points
+- Loading states and UX improvements
+
+**v0.4 (Coming Next):**
+- Additional platform support (Instagram, Facebook, Email)
+- Multiple content type support (blog posts, press releases, video scripts)
+- Batch content analysis capabilities
 
 **v1.0 (Vision):**
 - Multi-platform analysis and optimization
