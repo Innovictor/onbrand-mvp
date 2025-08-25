@@ -1,0 +1,37 @@
+Get user input for content to analyze  
+    # Ask user if they want to analyze a piece of content against this brand personality description
+   Print: "Would you like to analyze content against this brand personality? 
+            Enter: Y for Yes, N for No and Exit"
+                If user enters Y, proceed to Platform-selection
+                    "What platform is this content for? Enter 1 or 2"
+                        [1] Twitter (280 chars max)
+                        [2] LinkedIn (1300 chars max)
+                            Save platform
+                            If user enters 1, present user with text box with a 280 text character
+                            If user enters 2, present user with text box with a 1300 text character
+                                If content exceeds character limit:Print "Content too long. 
+                                [Platform] allows max [X] characters. Please shorten and try again." t
+                                Loop back to content input.  
+                                Save user input in a .txt file with timestamp named content_YYYY-MM-DD_HH-MM.txt
+                            If user enters anything other than 1 or 2, print "Invalid input" and loop back to platform selection
+                If user enters N, loop back to "Thanks for using OnBrand and exit().
+                If user anything other than Y or N, print "Invalid input" and loop back to 
+                            
+
+Analyze user_draft against brand personality description
+    Recall brand personaolity description from earlier
+    Recall content_date_time
+    Recall platform
+    Connect to Claude API
+    Send the following prompt to Claude
+        Please analyse the content_date_time against the brand_personality_ description and platform best pracites the present your analysis
+        within the following context:
+            1. OnBrand Score (0-100): How well the draft matches the brand personality
+            2. Assessment: Is it OnBrand (Yes/No)
+            3. Key Insights: Why it is or isn't OnBrand
+            4. Suggestions: if draft is good as-is, say:
+            "This draft is OnBrand. No Changes needed."
+            Otherwise, provide 2-3 actionable improvements
+            Save OnBrand analysis in .txt file wit timestamp named analysis_YYYY-MM-DD_HH-MM.txt
+    Loop back to: Print: Would you like to analyze your content against this brand personality description?
+
