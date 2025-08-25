@@ -1,4 +1,4 @@
-# OnBrand MVP v0.1
+# OnBrand MVP v0.3
 *AI-Powered Brand Personality Analyzer*
 
 ## 🎯 Problem Statement
