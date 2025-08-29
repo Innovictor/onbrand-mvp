@@ -128,48 +128,70 @@ def save_personality_description(description, score):
 
 def analyze_content_with_claude(content, platform, description, score):
     """Send user's content to Claude for OnBrand analysis"""
-    print("📡 Connecting to Claude for analysis")
+    print("📡 Connecting to OnBrand's analysis engine for analysis")
     time.sleep(4)
     print(f"🔄 Analyzing your {platform} content...")
 
-    client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    # Professional error handling - let's wrap API calls in try/except
+    try:
+        client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
+        # Platform-specific guidance dictionary 
+        platform_guidance = {
+            'Twitter': 'considering Twitter\'s 280-character limit and conversational tone',
+            'LinkedIn': 'considering LinkedIn\'s professional context and 1300-character optimal length',
+            'Email': 'considering email marketing best practices and recipient engagement',
+            'Blog': 'considering blog readability, SEO, and audience retention'
+        }
 
-    prompt = f"""You are an experienced Head of Content analyzing content against a specific brand personality.
+        # Get the right guidance for the platform, with fallback
+        platform_context = platform_guidance.get(platform, f'considering {platform} best practices')
 
-    BRAND PERSONALITY:
-    {description}
+        prompt = f"""You are an experienced Head of Content analyzing content against a specific brand personality.
 
-    BRAND SCORES:
-        - Casual vs Formal: {score[0]}/10
-        - Playful vs Serious: {score[1]}/10  
-        - Simple vs Technical: {score[2]}/10
+        BRAND PERSONALITY:
+        {description}
 
-    CONTENT TO ANALYZE:
-        Platform: {platform}
-        Content: "{content}"
+        BRAND SCORES:
+            - Casual vs Formal: {score[0]}/10
+            - Playful vs Serious: {score[1]}/10  
+            - Simple vs Technical: {score[2]}/10
 
-    Please provide analysis in this exact format:
+        CONTENT TO ANALYZE:
+            Platform: {platform}
+            Content: "{content}"
 
-        ONBRAND SCORE: [0-100 number]/100
+        Please provide analysis in this exact format:
 
-    ASSESSMENT: [OnBrand/OffBrand]
+            ONBRAND SCORE: [0-100 number]/100
 
-    KEY INSIGHTS:
-        [2-3 sentences explaining why this content does or doesn't match the brand personality, considering {platform} best practices]
+        ASSESSMENT: [OnBrand/OffBrand]
 
-    SUGGESTIONS:
-        [If content is already OnBrand, say "This content aligns well with your brand personality. No changes needed." 
-        Otherwise, provide 2-3 specific, actionable improvements that would make it more OnBrand while being effective on {platform}]
-        """
+        KEY INSIGHTS:
+            [2-3 sentences explaining why this content does or doesn't match the brand personality, {platform_context}]
 
-    response = client.messages.create(
-        model = "claude-sonnet-4-0",
-        max_tokens=300,
-        messages=[{"role": "user", "content": prompt}]
-        )
-    
-    return response.content[0].text
+        SUGGESTIONS:
+            [If content is already OnBrand, say "This content aligns well with your brand personality. No changes needed." 
+            Otherwise, provide 2-3 specific, actionable improvements that would make it more OnBrand while being effective on {platform}]
+            """
+
+        response = client.messages.create(
+            model = "claude-sonnet-4-0",
+            max_tokens=400,
+            messages=[{"role": "user", "content": prompt}]
+            )
+        
+        return response.content[0].text
+    # Handle specific API errors with user-friendly messages
+    except anthropic.APIConnectionError:
+        return "⚠️ Sorry, Onbrand couldn't establish a connection right now. Please check your internet connection and try again."
+    except anthropic.APIStatusError as e:
+        if e.status_code == 429:  # Rate limiting
+            return "⚠️ Sorry, OnBrand's analysis engine is experiencing high demand right now. Please wait a moment and try again."
+        else:
+            return f"⚠️ Sorry, OnBrand's analysis engine encountered an error (Status: {e.status_code}). Please try again."
+    except Exception as e:  # Catch-all for any other errors
+        return "⚠️ Sorry, Onbrand couldn't analyze your content right now. Please try again."
 
 
             # Content analysis workflow
@@ -196,9 +218,12 @@ def analyze_content(description, score):
                 while True:
                     print("\nWhat platform is this content for?")
                     print("[1] Twitter (280 chars max)")
-                    print("[2] LinkedIn (1300 chars max)")
+                    print("[2] LinkedIn (1300 chars recommended, 3000 max)")
+                    print("[3] Email (50-125 words recommended, keep under 500 words for best results)")
+                    print("[4] Blog (max 1000 words recommended for testing)")
                     print("[E] Exit to main menu")
-                    platform_choice = input("Enter 1, 2 or E:").strip()
+                    platform_choice = input("Enter 1, 2, 3, 4 or E:").strip()
+                    
                             
                     if platform_choice == '1':
                         platform = "Twitter"
@@ -207,24 +232,62 @@ def analyze_content(description, score):
                     
                     elif platform_choice == '2':
                         platform = "LinkedIn"
-                        char_limit = 1300
+                        char_limit = 3000
                         break
+
+                    elif platform_choice == '3':
+                        platform = "Email"
+                        char_limit = None  # No hard limit, but we'll give guidance
+                        break
+
+                    elif platform_choice == '4':
+                        platform = "Blog"
+                        char_limit = None  # No hard limit
+                        break
+
                     elif platform_choice == 'E':
                         return
+                    
                     else:
-                        print("Invalid input. Please enter 1 for Twitter, 2 for LinkedIn or E to Exit.")
+                            print("Invalid input. Please enter 1-4 for platforms or E to Exit.")
 
-                    # Content entry loop (length validation)
-                while True: 
-                    content = input(f"\nPaste/write your {platform} content here (max {char_limit} characters or type 'E' to exit:\n").strip()
+                    # Content entry loop with tiered validation
+                while True:
+                    content = input(f"\nPaste/write your {platform} content here or type 'E' to exit:\n").strip()
 
                     if content.upper() == 'E':
                         return
-                    elif len(content) <= char_limit:
+                    # Character/word counting and validation
+                    char_count = len(content)
+                    word_count = len(content.split())
+
+                    if platform == "Twitter" and char_count > 280:
+                        print(f"Content too long ({char_count} characters). Max 280 characters for Twitter. Please shorten and try again.")
+                        continue
+        
+                    elif platform == "LinkedIn" and char_count > 1300:
+                        print(f"Content too long ({char_count} characters). Max 1300 characters for LinkedIn. Please shorten and try again.")
+                        continue
+        
+                    elif platform == "Email":
+                        if word_count > 500:  # MVP testing limit
+                            print(f"Content too long ({word_count} words). OnBrand MVP testing limit is 500 words. Please shorten and try again.")
+                            continue
+                        elif word_count > 150:  # Recommendation warning
+                            print(f"📏 Your email is {word_count} words. Recommended: 50-150 words for best engagement. Continue anyway? (Y/N)")
+                            choice = input().strip().upper()
+                            if choice != 'Y':
+                                continue
                         break
+        
+                    elif platform == "Blog":
+                        if word_count > 1000:  # MVP testing limit
+                            print(f"Content too long ({word_count} words). OnBrand MVP testing limit is 1000 words. Please shorten and try again.")
+                            continue
+                        break
+                                
                     else:
-                        print(f"Content too long. {platform} allows max {char_limit} characters. "
-                        "Please shorten and try again.")
+                         break  # Valid content for Twitter/LinkedIn within limits
 
 
                 # At this point, we should have valid content
@@ -233,33 +296,38 @@ def analyze_content(description, score):
                 
 
                 # Call Claude for analysis
-                analysis = analyze_content_with_claude(content, platform, description, score)
+                analysis_result = analyze_content_with_claude(content, platform, description, score)
 
                 # Display the results
                 print("\n" + "="*50)
                 print("🗂️ ONBRAND ANALYSIS RESULTS")
                 print("="*50)
-                print(analysis)
+                print(analysis_result)
 
 
                 # Save analysis to timestamped file
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-                analysis_filename = f"analysis_{timestamp}.txt"
+                filename = f"analysis_{platform.lower()}_{timestamp}.txt"
 
-                with open(analysis_filename, "w") as file:
-                    file.write("ONBRAND CONTENT ANALYSIS\n")
-                    file.write("=" * 50 + "\n\n")
-                    file.write(f"Analysis Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-                    file.write(f"Platform: {platform}\n")
-                    file.write(f"Content Analyzed: {content}\n\n")
-                    file.write("BRAND PERSONALITY REFERENCE:\n")
-                    file.write(f"Casual vs Formal: {score[0]}\n")
-                    file.write(f"Playful vs Serious: {score[1]}\n") 
-                    file.write(f"Simple vs Technical: {score[2]}\n\n")
-                    file.write("ANALYSIS RESULTS:\n")
-                    file.write(analysis)
+                try:
+                    with open(filename, 'w') as f:
+                        f.write("ONBRAND CONTENT ANALYSIS\n")
+                        f.write("=" * 50 + "\n\n")
+                        f.write(f"Analysis Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+                        f.write(f"Platform: {platform}\n")
+                        f.write(f"Content Length: {char_count} chars, {word_count} words\n")
+                        f.write(f"Content Analyzed: {content}\n\n")
+                        f.write("BRAND PERSONALITY REFERENCE:\n")
+                        f.write(f"Casual vs Formal: {score[0]}/10\n")
+                        f.write(f"Playful vs Serious: {score[1]}/10\n") 
+                        f.write(f"Simple vs Technical: {score[2]}/10\n\n")
+                        f.write("ANALYSIS RESULTS:\n")
+                        f.write(analysis_result)
 
-                print(f"\n💾 Analysis saved to '{analysis_filename}'")
+                    print(f"\n💾 Analysis saved to '{filename}'")
+
+                except Exception as e:
+                    print(f"\n⚠️ Could not save analysis to file: {e}")
                 
                 
             elif content_choice == 'N':
@@ -278,7 +346,7 @@ def main():
     while True:
         score = get_brand_personality_input(first_time)
         first_time = False
-        print(f"\Your Brand Personality:")
+        print(f"Your Brand Personality:")
         print(f"Casual vs Formal: {score [0]}")
         print(f"Playful vs Serious: {score[1]}")
         print(f"Simple vs Technical: {score[2]}")

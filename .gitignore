@@ -1,2 +1,3 @@
-.envanalysis_*.txt
+.env
+analysis_*.txt
 brand_personality_description.txt

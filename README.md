@@ -1,5 +1,5 @@
-# OnBrand MVP v0.3
-*AI-Powered Brand Personality Analyzer*
+# OnBrand MVP v0.4
+*Proactive Brand Consistency Platform*
 
 ## 🎯 Problem Statement
 
@@ -18,16 +18,17 @@ Instead of generic analysis, OnBrand provides:
 - **Dominance Moments**: When different traits should lead your communication
 - **Brand Voice Archetype**: Clear positioning and communication strategy
 
-## 🚀 Current Features (v0.3)
+## 🚀 Current Features (v0.4)
 
 - Interactive brand personality assessment (3-slider system)
 - AI-powered personality synthesis using Claude Sonnet 4
 - Professional brand voice analysis with actionable insights
 - Content analysis with OnBrand scoring (0-100)
-- Platform-specific optimization (Twitter/LinkedIn)
-- Character limit enforcement and validation
+- **Multi-platform optimization**: Twitter, LinkedIn, Email, and Blog support
+- **Smart validation**: Character limits for social platforms, word count recommendations for long-form content
+- **Professional error handling** with user-friendly messaging
 - Timestamped analysis history and file saving
-- Complete user workflow with exit options
+- Complete user workflow with exit options at all decision points
 - Secure API key management with environment variables
 
 ## 📋 Requirements
@@ -91,10 +92,18 @@ Dominant Trait Moments:
 - User exit options at all decision points
 - Loading states and UX improvements
 
-**v0.4 (Coming Next):**
-- Additional platform support (Instagram, Facebook, Email)
-- Multiple content type support (blog posts, press releases, video scripts)
+**v0.4 (✅ Completed):**
+- **Email and Blog platform support** with word-count validation
+- **Professional error handling** and user experience improvements
+- **Enhanced content validation** with platform-specific recommendations
+- Multi-tier validation system with user override options
+- OnBrand-consistent messaging throughout application
+
+**v0.5 (Coming Next):**
+- Data visualization and analytics dashboard
+- Additional platform support (Instagram, Facebook)
 - Batch content analysis capabilities
+- Enhanced file management and history tracking
 
 **v1.0 (Vision):**
 - Multi-platform analysis and optimization
@@ -125,11 +134,13 @@ OnBrand differentiates through:
 
 ## 📝 Development Notes
 
-I build this project using a **pseudocode-first methodology**:
+I built this project using a **pseudocode-first methodology**:
 1. Complete user journey mapped in plain English
 2. Logic refined and validated before coding
 3. Incremental development with testing at each milestone
 4. Professional security practices (environment variables, .gitignore)
+
+**Technical Limitations**: Terminal input is currently limited to approximately 1000 characters due to system constraints. This will be resolved with web interface implementation in future versions.
 
 ## 🤝 Contributing
 
